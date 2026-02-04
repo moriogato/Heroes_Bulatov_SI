@@ -11,67 +11,35 @@ public class SuitableForAttackUnitsFinderImpl implements SuitableForAttackUnitsF
     public List<Unit> getSuitableUnits(List<List<Unit>> unitsByRow, boolean isLeftArmyTarget) {
         List<Unit> suitableUnits = new ArrayList<>();
 
-        // Обрабатываем каждый ряд (3 ряда всего)
-        for (List<Unit> row : unitsByRow) {
-            if (row == null || row.isEmpty()) {
-                continue;
-            }
+        if (unitsByRow == null || unitsByRow.isEmpty()) {
+            return suitableUnits;
+        }
 
-            // Фильтруем только живых юнитов
-            List<Unit> aliveUnitsInRow = new ArrayList<>();
+        // Для каждого ряда находим подходящие цели
+        for (List<Unit> row : unitsByRow) {
+            if (row == null || row.isEmpty()) continue;
+
+            // Фильтруем живых юнитов
+            List<Unit> aliveUnits = new ArrayList<>();
             for (Unit unit : row) {
                 if (unit != null && unit.isAlive()) {
-                    aliveUnitsInRow.add(unit);
+                    aliveUnits.add(unit);
                 }
             }
 
-            if (aliveUnitsInRow.isEmpty()) {
-                continue;
-            }
+            if (aliveUnits.isEmpty()) continue;
 
+            // Если цель слева - берем самого левого
+            // Если цель справа - берем самого правого
             if (isLeftArmyTarget) {
-                // Атакуем левую армию (компьютер)
-                // Берем самого левого юнита (первого в списке)
-                // Проверяем, не закрыт ли он слева
-                Unit leftmost = aliveUnitsInRow.get(0);
-                suitableUnits.add(leftmost);
+                // Атакуем левую армию - берем первого живого слева
+                suitableUnits.add(aliveUnits.get(0));
             } else {
-                // Атакуем правую армию (игрок)
-                // Берем самого правого юнита (последнего в списке)
-                // Проверяем, не закрыт ли он справа
-                Unit rightmost = aliveUnitsInRow.get(aliveUnitsInRow.size() - 1);
-                suitableUnits.add(rightmost);
+                // Атакуем правую армию - берем последнего живого справа
+                suitableUnits.add(aliveUnits.get(aliveUnits.size() - 1));
             }
         }
 
         return suitableUnits;
-    }
-
-    // Вспомогательный метод для определения, закрыт ли юнит
-    private boolean isUnitBlocked(Unit unit, List<Unit> row, boolean checkLeft) {
-        if (row == null || row.isEmpty()) return false;
-
-        int unitIndex = row.indexOf(unit);
-        if (unitIndex == -1) return false;
-
-        if (checkLeft) {
-            // Проверяем, есть ли живой юнит слева
-            for (int i = unitIndex - 1; i >= 0; i--) {
-                Unit leftUnit = row.get(i);
-                if (leftUnit != null && leftUnit.isAlive()) {
-                    return true; // Закрыт слева
-                }
-            }
-        } else {
-            // Проверяем, есть ли живой юнит справа
-            for (int i = unitIndex + 1; i < row.size(); i++) {
-                Unit rightUnit = row.get(i);
-                if (rightUnit != null && rightUnit.isAlive()) {
-                    return true; // Закрыт справа
-                }
-            }
-        }
-
-        return false; // Не закрыт
     }
 }
